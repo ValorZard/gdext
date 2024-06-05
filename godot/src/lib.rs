@@ -185,6 +185,10 @@
 //! Please refrain from using undocumented and private features; if you are missing certain functionality, bring it up for discussion instead.
 //! This allows us to decide whether it fits the scope of the library and to design proper APIs for it.
 
+#![doc(html_logo_url = "https://godot-rust.github.io/godot-ferris-2.png")]
+#![doc(html_logo_url = "https://github.com/godot-rust/gdnative/raw/master/assets/godot-ferris.svg")]
+// #![doc(html_favicon_url = "https://github.com/godot-rust/godot-rust.github.io/blob/master/website/static/icons/favicon-16x16.png?raw=true")]
+
 // ----------------------------------------------------------------------------------------------------------------------------------------------
 // Validations
 
