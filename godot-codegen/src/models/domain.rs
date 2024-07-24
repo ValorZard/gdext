@@ -584,10 +584,10 @@ pub struct GodotTy {
 #[derive(Clone, Debug)]
 pub enum RustTy {
     /// `bool`, `Vector3i`
-    BuiltinIdent(Ident),
+    BuiltinIdent { tokens: Ident },
 
     /// `Array<i32>`
-    BuiltinArray(TokenStream),
+    BuiltinArray { array_tokens: TokenStream },
 
     /// C-style raw pointer to a `RustTy`.
     RawPointer { inner: Box<RustTy>, is_const: bool },
@@ -656,8 +656,8 @@ impl RustTy {
 impl ToTokens for RustTy {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            RustTy::BuiltinIdent(ident) => ident.to_tokens(tokens),
-            RustTy::BuiltinArray(path) => path.to_tokens(tokens),
+            RustTy::BuiltinIdent { tokens: ident } => ident.to_tokens(tokens),
+            RustTy::BuiltinArray { array_tokens: path } => path.to_tokens(tokens),
             RustTy::RawPointer {
                 inner,
                 is_const: true,
