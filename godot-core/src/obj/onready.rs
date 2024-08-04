@@ -16,7 +16,9 @@ use std::mem;
 ///
 /// While deferred initialization is generally seen as bad practice, it is often inevitable in game development.
 /// Godot in particular encourages initialization inside `ready()`, e.g. to access the scene tree after a node is inserted into it.
-/// The alternative to using this pattern is [`Option<T>`][option], which needs to be explicitly unwrapped with `unwrap()` or `expect()` each time.
+/// The alternative to using this pattern is [`Option<T>`], which needs to be explicitly unwrapped with `unwrap()` or `expect()` each time.
+///
+/// # General usage
 ///
 /// `OnReady<T>` should always be used as a field. There are two modes to use it:
 ///
@@ -28,23 +30,28 @@ use std::mem;
 ///    These fields are left uninitialized until you call [`init()`][Self::init] on them. This is useful if you need more complex
 ///    initialization scenarios than a closure allows. If you forget initialization, a panic will occur on first access.
 ///
-/// Conceptually, `OnReady<T>` is very close to [once_cell's `Lazy<T>`][lazy], with additional hooks into the Godot lifecycle.
 /// The absence of methods to check initialization state is deliberate: you don't need them if you follow the above two patterns.
-/// This container is not designed as a general late-initialization solution, but tailored to the `ready()` semantics of Godot.
 ///
-/// `OnReady<T>` cannot be used with `#[export]` fields, because `ready()` is typically not called in the editor (unless `#[class(tool)]`
-/// is specified). You can however use it with `#[var]` -- just make sure to access the fields in GDScript after `ready()`.
+/// # On-ready vs. lazy initialization
 ///
-/// This type is not thread-safe. `ready()` runs on the main thread, and you are expected to access its value on the main thread, as well.
+/// This container is **not** designed as a general lazy-initialization solution, but tailored to the `ready()` semantics of Godot. There
+/// are several design choices here:
+/// - Field initialization happens precisely in the order of declaration.
+/// - Initialization is not skipped (as long as the node is added to the scene tree). You can thus rely on side effects being executed.
+/// - Accidentally accessing a value too early (before `ready()`) signals logic errors via panic, instead of silently trying to initialize.
 ///
-/// [option]: std::option::Option
-/// [lazy]: https://docs.rs/once_cell/1/once_cell/unsync/struct.Lazy.html
+/// If you need lazy initialization, consider using other facilities such as [`std::cell::LazyCell`] and [`std::sync::LazyLock`], or simply
+/// `Option<T>` with a convenience method to initialize it. `Option` is better integrated with Godot (e.g. implements `Var`).
 ///
-/// # Requirements
-/// - The class must have an explicit `Base` field (i.e. `base: Base<Node>`).
-/// - The class must inherit `Node` (otherwise `ready()` would not exist anyway).
+/// # Requirements and limitations
 ///
-/// # Example - user-defined `init`
+/// - `OnReady<T>` must be used inside classes inheriting `Node`.
+/// - The class must have an explicit `Base<T>` field.
+/// - It cannot be used with `#[export]` fields, because `ready()` is typically not called in the editor (unless `#[class(tool)]` is specified).
+///   You can however use it with `#[var]` -- just make sure to access the fields in GDScript after `ready()`.
+/// - This type is not thread-safe. `ready()` runs on the main thread, and you are expected to access its value on the main thread, as well.
+///
+/// # Example: user-defined `init`
 /// ```
 /// use godot::prelude::*;
 ///
@@ -77,7 +84,7 @@ use std::mem;
 /// }
 /// ```
 ///
-/// # Example - macro-generated `init`
+/// # Example: macro-generated `init`
 /// ```
 /// use godot::prelude::*;
 ///
@@ -113,7 +120,7 @@ impl<T: GodotClass + Inherits<Node>> OnReady<Gd<T>> {
     /// This is the functional equivalent of the GDScript pattern `@onready var node = $NodePath`.
     ///
     /// # Panics
-    /// - If `path` does not point to a valid node.
+    /// If `path` does not point to a valid node.
     ///
     /// Note that the panic will only happen if and when the node enters the SceneTree for the first time
     ///  (i.e.: it receives the `READY` notification).
