@@ -106,8 +106,8 @@ pub unsafe trait GodotFfi {
 ///
 /// Used to blanket implement various conversions over `Option<T>`.
 ///
-/// This is currently only implemented for `RawGd`.
-// TODO: Consider implementing for `Variant`.
+/// This is currently only implemented for `RawGd` and `ObjectArg`.
+// Consider implementing for `Variant`?
 pub trait GodotNullableFfi: Sized + GodotFfi {
     fn flatten_option(opt: Option<Self>) -> Self;
     fn is_null(&self) -> bool;
