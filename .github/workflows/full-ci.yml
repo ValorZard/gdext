@@ -161,10 +161,10 @@ jobs:
         run: cargo +nightly update -Z minimal-versions
 
       - name: "Compile tests"
-        run: cargo test $GDEXT_FEATURES --no-run ${{ matrix.rust-extra-args }}
+        run: cargo test $GDEXT_FEATURES --features godot/register-docs --no-run ${{ matrix.rust-extra-args }}
 
       - name: "Test"
-        run: cargo test $GDEXT_FEATURES ${{ matrix.rust-extra-args }}
+        run: cargo test $GDEXT_FEATURES --features godot/register-docs ${{ matrix.rust-extra-args }}
 
 
   miri-test:
