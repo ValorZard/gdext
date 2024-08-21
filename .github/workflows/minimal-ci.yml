@@ -120,10 +120,10 @@ jobs:
         uses: ./.github/composite/rust
 
       - name: "Compile tests"
-        run: cargo test $GDEXT_FEATURES --features godot/register-docs --no-run
+        run: cargo test $GDEXT_FEATURES --features itest/register-docs --no-run
 
       - name: "Test"
-        run: cargo test $GDEXT_FEATURES
+        run: cargo test $GDEXT_FEATURES --features itest/register-docs
 
 
   # For complex matrix workflow, see https://stackoverflow.com/a/65434401
